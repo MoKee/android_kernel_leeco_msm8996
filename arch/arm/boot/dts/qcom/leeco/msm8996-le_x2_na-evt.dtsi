@@ -13,17 +13,16 @@
 #include "msm8996-mtp-le-common.dtsi"
 #include "msm8996-pinctrl-le_x2_na.dtsi"
 #include "msm8996-le-common.dtsi"
-#include "dsi-panel-sharp-dualmipi-cmd-le_x2_na-dvt1.dtsi"
-#include "dsi-panel-truly-dualmipi-cmd-le_x2-dvt2.dtsi"
-#include "letv-tp-atmel_mxt_ts-le_x2_na-dvt1.dtsi"
-#include "msm8996-camera-sensor-x2-dvt1.dtsi"
+#include "dsi-panel-truly-dualmipi-cmd-le_x2_na.dtsi"
+#include "letv-tp-synaptics-dsx-i2c.dtsi"
+#include "msm8996-camera-sensor-le_x2.dtsi"
 
 &sdhc_2 {
 	status = "disabled";
 };
 
 &mdss_dsi0 {
-	qcom,dsi-pref-prim-pan = <&dsi_dual_sharp_cmd>;
+	qcom,dsi-pref-prim-pan = <&dsi_dual_truly_cmd>;
 	/delete-property/ vddio-supply;
 	qcom,platform-te-gpio = <&tlmm 97 0>;
 	qcom,platform-reset-gpio = <&tlmm 24 0>;
@@ -31,7 +30,7 @@
 };
 
 &mdss_dsi1 {
-	qcom,dsi-pref-prim-pan = <&dsi_dual_sharp_cmd>;
+	qcom,dsi-pref-prim-pan = <&dsi_dual_truly_cmd>;
 	/delete-property/ vddio-supply;
 	qcom,platform-te-gpio = <&tlmm 97 0>;
 	qcom,platform-reset-gpio = <&tlmm 24 0>;
@@ -90,7 +89,7 @@
 	};
 };
 
-&dsi_dual_sharp_cmd {
+&dsi_dual_truly_cmd {
 	qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_wled";
 	qcom,mdss-dsi-bl-min-level = <1>;
 	qcom,mdss-dsi-bl-max-level = <4095>;
@@ -173,18 +172,32 @@
 			"AIF4 VI", "MCLK",
 			"RX_BIAS", "MCLK",
 			"MADINPUT", "MCLK",
-			"AMIC1", "MIC BIAS1",
-			"MIC BIAS1", "Handset Mic",
 			"AMIC2", "MIC BIAS2",
 			"MIC BIAS2", "Headset Mic",
 			"AMIC3", "MIC BIAS2",
-			"MIC BIAS2", "USB Type-c Back Mic",
+			"MIC BIAS2", "ANCRight Headset Mic",
+			"AMIC4", "MIC BIAS2",
+			"MIC BIAS2", "ANCLeft Headset Mic",
+			"AMIC1", "MIC BIAS1",
+			"MIC BIAS1", "Handset Mic",
 			"AMIC4", "MIC BIAS4",
 			"MIC BIAS4", "REC ANC Analog Mic",
 			"AMIC5", "MIC BIAS3",
 			"MIC BIAS3", "ANC Analog Mic",
-			"AMIC6", "MIC BIAS1",
-			"MIC BIAS1", "Main Mic2";
+			"AMIC6", "MIC BIAS3",
+			"MIC BIAS3", "Analog Mic6",
+			"DMIC0", "MIC BIAS1",
+			"MIC BIAS1", "Digital Mic0",
+			"DMIC1", "MIC BIAS1",
+			"MIC BIAS1", "Digital Mic1",
+			"DMIC2", "MIC BIAS3",
+			"MIC BIAS3", "Digital Mic2",
+			"DMIC3", "MIC BIAS3",
+			"MIC BIAS3", "Digital Mic3",
+			"DMIC4", "MIC BIAS4",
+			"MIC BIAS4", "Digital Mic4",
+			"DMIC5", "MIC BIAS4",
+			"MIC BIAS4", "Digital Mic5";
 
                 asoc-platform = <&pcm0>, <&pcm1>, <&pcm2>, <&voip>, <&voice>,
                                 <&loopback>, <&compress>, <&hostless>,
@@ -348,10 +361,6 @@
 		reset-gpio = <&tlmm 90 0x00>;
 	};
 
-	nq@28 {
-		status = "disabled";
-	};
-
 	at24@51 {
 		compatible = "atmel,24c32";
 		reg = <0x51>;
@@ -389,24 +398,9 @@
 /{
 	mtp_batterydata: qcom,battery-data {
 		qcom,batt-id-range-pct = <15>;
-		#include "batterydata-le_x2-3200mah.dtsi"
+		#include "batterydata-max-plus-3395mah.dtsi"
 	};
 };
-
-&pmi8994_charger {
-	qcom,float-voltage-mv = <4400>;
-	qcom,fastchg-current-ma = <4500>;
-	qcom,thermal-mitigation = <4500 3800 3000 2000 500>;
-	qcom,usb-thermal-mitigation = <3000 2000 1000 0>;
-};
-
-&pmi8994_fg {
-	qcom,warm-bat-decidegc = <450>;
-	qcom,hot-bat-decidegc = <500>;
-	qcom,cool-bat-decidegc = <150>;
-	qcom,cold-bat-decidegc = <0>;
-};
-
 
 &uartblsp2dm1 {
         pinctrl-names = "default", "sleep";
@@ -426,46 +420,4 @@
                                 0x80 0x04
                                 0x9F 0x1C
                                 0x00 0x18>;
-};
-
-&usb3 {
-	qcom,usbin-vadc = <&pmi8994_vadc>;
-	qcom,usbtemp-vadc = <&pm8994_vadc>;
-};
-
-&pm8994_vadc {
-	chan@79 {
-		label = "usbtemp";
-		reg = <0x79>;
-		qcom,decimation = <0>;
-		qcom,pre-div-channel-scaling = <0>;
-		qcom,calibration-type = "ratiometric";
-		qcom,scale-function = <2>;
-		qcom,hw-settle-time = <2>;
-		qcom,fast-avg-setup = <0>;
-	};
-};
-
-&pm8994_adc_tm {
-	chan@79 {
-		label = "usbtemp";
-		reg = <0x79>;
-		qcom,decimation = <0>;
-		qcom,pre-div-channel-scaling = <0>;
-		qcom,calibration-type = "ratiometric";
-		qcom,scale-function = <2>;
-		qcom,hw-settle-time = <2>;
-		qcom,fast-avg-setup = <0>;
-		qcom,btm-channel-number = <0x88>;
-		qcom,thermal-node;
-	};
-};
-
-&soc {
-	qcom,sensor-information {
-		sensor_information36: qcom,sensor-information-36 {
-			qcom,sensor-type = "adc";
-			qcom,sensor-name = "usbtemp";
-		};
-	};
 };
